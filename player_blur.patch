@@ -1,0 +1,158 @@
+--- /mnt/data/lotus_orig/lotus-1.2.0/app/src/main/java/com/dn0ne/player/app/presentation/components/playback/PlayerSheet.kt	2025-01-25 19:43:57.000000000 +0000
++++ /mnt/data/lotus_src/lotus-1.2.0/app/src/main/java/com/dn0ne/player/app/presentation/components/playback/PlayerSheet.kt	2026-09-24 11:03:02.269693145 +0000
+@@ -1,5 +1,10 @@
+ package com.dn0ne.player.app.presentation.components.playback
+ 
++import android.graphics.RenderEffect
++import android.graphics.Shader
++import android.os.Build
++import android.net.Uri
++
+ import androidx.activity.compose.BackHandler
+ import androidx.compose.animation.AnimatedContent
+ import androidx.compose.animation.AnimatedVisibility
+@@ -77,6 +82,7 @@
+ import androidx.compose.ui.graphics.Color
+ import androidx.compose.ui.graphics.ImageBitmap
+ import androidx.compose.ui.graphics.graphicsLayer
++import androidx.compose.ui.layout.ContentScale
+ import androidx.compose.ui.platform.LocalContext
+ import androidx.compose.ui.platform.LocalDensity
+ import androidx.compose.ui.platform.LocalLayoutDirection
+@@ -89,6 +95,8 @@
+ import com.dn0ne.player.app.domain.playback.PlaybackMode
+ import com.dn0ne.player.app.domain.track.Playlist
+ import com.dn0ne.player.app.domain.track.Track
++import coil3.compose.AsyncImage
++import coil3.request.ImageRequest
+ import com.dn0ne.player.app.presentation.components.CoverArt
+ import com.dn0ne.player.app.presentation.components.TrackMenuButton
+ import com.dn0ne.player.app.presentation.components.isSystemInLandscapeOrientation
+@@ -512,11 +520,60 @@
+         mutableStateOf(false)
+     }
+ 
+-    Box {
++    Box(modifier = modifier.fillMaxSize()) {
++        // Full-screen adaptive album-art background. This is deliberately a separate
++        // layer so the foreground CoverArt below keeps its original size and shape.
++        playbackState.currentTrack?.let { track ->
++            AnimatedContent(
++                targetState = track,
++                transitionSpec = {
++                    fadeIn(animationSpec = tween(450)) togetherWith
++                        fadeOut(animationSpec = tween(450))
++                },
++                label = "blurred-album-art-background"
++            ) { backgroundTrack ->
++                val context = LocalContext.current
++                AsyncImage(
++                    model = ImageRequest.Builder(context)
++                        .data(backgroundTrack.coverArtUri)
++                        .build(),
++                    contentDescription = null,
++                    contentScale = ContentScale.Crop,
++                    modifier = Modifier
++                        .fillMaxSize()
++                        .graphicsLayer {
++                            // Scale slightly past the viewport so blur never exposes
++                            // hard edges at the screen boundary.
++                            scaleX = 1.08f
++                            scaleY = 1.08f
++                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
++                                renderEffect = RenderEffect.createBlurEffect(
++                                    55f,
++                                    55f,
++                                    Shader.TileMode.CLAMP
++                                )
++                            }
++                        }
++                )
++            }
++        }
++
++        // Dark gradient keeps the existing text/controls readable over bright artwork.
+         Box(
+-            modifier = modifier
++            modifier = Modifier
++                .fillMaxSize()
++                .background(
++                    androidx.compose.ui.graphics.Brush.verticalGradient(
++                        0f to Color.Black.copy(alpha = 0.48f),
++                        0.48f to Color.Black.copy(alpha = 0.38f),
++                        1f to Color.Black.copy(alpha = 0.68f)
++                    )
++                )
++        )
++
++        Box(
++            modifier = Modifier
+                 .fillMaxSize()
+-                .background(color = MaterialTheme.colorScheme.surface)
+                 .safeDrawingPadding()
+                 .padding(horizontal = 28.dp),
+             contentAlignment = Alignment.Center
+@@ -990,14 +1047,14 @@
+             val isRtl = layoutDirection == LayoutDirection.Rtl
+             IconButton(
+                 onClick = onSeekToPreviousClick,
+-                modifier = Modifier.size(48.dp)
++                modifier = Modifier.size(54.dp)
+             ) {
+                 Icon(
+                     imageVector = Icons.Rounded.SkipPrevious,
+                     contentDescription = null,
+                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                     modifier = Modifier
+-                        .size(36.dp)
++                        .size(40.dp)
+                         .graphicsLayer {
+                             if (isRtl) {
+                                 rotationY = 180f
+@@ -1009,25 +1066,25 @@
+             if (isPlaying) {
+                 IconButton(
+                     onClick = onPauseClick,
+-                    modifier = Modifier.size(60.dp)
++                    modifier = Modifier.size(68.dp)
+                 ) {
+                     Icon(
+                         imageVector = Icons.Rounded.Pause,
+                         contentDescription = null,
+                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
+-                        modifier = Modifier.size(48.dp)
++                        modifier = Modifier.size(54.dp)
+                     )
+                 }
+             } else {
+                 IconButton(
+                     onClick = onPlayClick,
+-                    modifier = Modifier.size(60.dp)
++                    modifier = Modifier.size(68.dp)
+                 ) {
+                     Icon(
+                         imageVector = Icons.Rounded.PlayArrow,
+                         contentDescription = null,
+                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
+-                        modifier = Modifier.size(48.dp)
++                        modifier = Modifier.size(54.dp)
+ 
+                     )
+                 }
+@@ -1035,14 +1092,14 @@
+ 
+             IconButton(
+                 onClick = onSeekToNextClick,
+-                modifier = Modifier.size(48.dp)
++                modifier = Modifier.size(54.dp)
+             ) {
+                 Icon(
+                     imageVector = Icons.Rounded.SkipNext,
+                     contentDescription = null,
+                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                     modifier = Modifier
+-                        .size(36.dp)
++                        .size(40.dp)
+                         .graphicsLayer {
+                             if (isRtl) {
+                                 rotationY = 180f
