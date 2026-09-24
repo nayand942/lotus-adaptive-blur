@@ -1,0 +1,56 @@
+name: Build Lotus APK
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout modifications
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Clone Lotus 1.2.0
+        run: |
+          git clone --branch v1.2.0 --depth 1 https://github.com/dn0ne/lotus.git lotus
+
+      - name: Apply modifications
+        run: |
+          mkdir -p lotus/app/src/main/res/drawable
+
+          sed \
+            -e 's#/mnt/data/lotus_orig/lotus-1.2.0/#a/#g' \
+            -e 's#/mnt/data/lotus_src/lotus-1.2.0/#b/#g' \
+            player_blur.patch > /tmp/player_blur.patch
+
+          sed \
+            -e 's#/mnt/data/lotus_orig/lotus-1.2.0/#a/#g' \
+            -e 's#/mnt/data/lotus_src/lotus-1.2.0/#b/#g' \
+            theme.patch > /tmp/theme.patch
+
+          cd lotus
+          git apply /tmp/player_blur.patch
+          git apply /tmp/theme.patch
+          cd ..
+
+          cp app/src/main/res/drawable/splash_music_logo.png \
+             lotus/app/src/main/res/drawable/splash_music_logo.png
+
+      - name: Build APK
+        working-directory: lotus
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug -PnoSplits
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: lotus-adaptive-blur-apk
+          path: lotus/app/build/outputs/apk/*.apk
