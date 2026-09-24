@@ -1,0 +1,24 @@
+--- /mnt/data/lotus_orig/lotus-1.2.0/app/src/main/res/values/themes.xml	2025-01-25 19:43:57.000000000 +0000
++++ /mnt/data/lotus_src/lotus-1.2.0/app/src/main/res/values/themes.xml	2026-09-24 11:03:02.270066247 +0000
+@@ -4,8 +4,8 @@
+     <style name="Theme.MusicPlayer" parent="android:Theme.Material.Light.NoActionBar" />
+ 
+     <style name="Theme.MusicPlayer.Splash" parent="Theme.SplashScreen">
+-        <item name="windowSplashScreenBackground">@color/white</item>
+-        <item name="windowSplashScreenAnimatedIcon">@drawable/animated_logo</item>
++        <item name="windowSplashScreenBackground">@color/black</item>
++        <item name="windowSplashScreenAnimatedIcon">@drawable/splash_music_logo</item>
+         <item name="windowSplashScreenAnimationDuration">300</item>
+         <item name="postSplashScreenTheme">@style/Theme.MusicPlayer</item>
+     </style>
+--- /mnt/data/lotus_orig/lotus-1.2.0/app/src/main/res/values-night/themes.xml	2025-01-25 19:43:57.000000000 +0000
++++ /mnt/data/lotus_src/lotus-1.2.0/app/src/main/res/values-night/themes.xml	2026-09-24 11:03:02.270156303 +0000
+@@ -6,7 +6,7 @@
+ 
+     <style name="Theme.MusicPlayer.Splash" parent="Theme.SplashScreen">
+         <item name="windowSplashScreenBackground">@color/black</item>
+-        <item name="windowSplashScreenAnimatedIcon">@drawable/animated_logo</item>
++        <item name="windowSplashScreenAnimatedIcon">@drawable/splash_music_logo</item>
+         <item name="windowSplashScreenAnimationDuration">300</item>
+         <item name="postSplashScreenTheme">@style/Theme.MusicPlayer</item>
+     </style>
