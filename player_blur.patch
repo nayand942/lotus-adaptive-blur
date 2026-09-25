@@ -14,13 +14,13 @@
 @@ -77,6 +82,8 @@
  import androidx.compose.ui.graphics.Color
  import androidx.compose.ui.graphics.ImageBitmap
- +import androidx.compose.ui.graphics.asComposeRenderEffect
++import androidx.compose.ui.graphics.asComposeRenderEffect
  import androidx.compose.ui.graphics.graphicsLayer
 +import androidx.compose.ui.layout.ContentScale
  import androidx.compose.ui.platform.LocalContext
  import androidx.compose.ui.platform.LocalDensity
  import androidx.compose.ui.platform.LocalLayoutDirection
-@@ -89,6 +95,8 @@
+@@ -89,6 +96,8 @@
  import com.dn0ne.player.app.domain.playback.PlaybackMode
  import com.dn0ne.player.app.domain.track.Playlist
  import com.dn0ne.player.app.domain.track.Track
@@ -29,7 +29,7 @@
  import com.dn0ne.player.app.presentation.components.CoverArt
  import com.dn0ne.player.app.presentation.components.TrackMenuButton
  import com.dn0ne.player.app.presentation.components.isSystemInLandscapeOrientation
-@@ -512,11 +520,60 @@
+@@ -512,11 +521,60 @@
          mutableStateOf(false)
      }
  
@@ -93,7 +93,7 @@
                  .safeDrawingPadding()
                  .padding(horizontal = 28.dp),
              contentAlignment = Alignment.Center
-@@ -990,14 +1047,14 @@
+@@ -990,14 +1048,14 @@
              val isRtl = layoutDirection == LayoutDirection.Rtl
              IconButton(
                  onClick = onSeekToPreviousClick,
@@ -110,7 +110,7 @@
                          .graphicsLayer {
                              if (isRtl) {
                                  rotationY = 180f
-@@ -1009,25 +1066,25 @@
+@@ -1009,25 +1067,25 @@
              if (isPlaying) {
                  IconButton(
                      onClick = onPauseClick,
@@ -140,7 +140,7 @@
  
                      )
                  }
-@@ -1035,14 +1092,14 @@
+@@ -1035,14 +1093,14 @@
  
              IconButton(
                  onClick = onSeekToNextClick,
