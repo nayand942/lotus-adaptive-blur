@@ -1,10 +1,10 @@
 diff --git a/app/src/main/java/com/dn0ne/player/app/presentation/components/playback/PlayerSheet.kt b/app/src/main/java/com/dn0ne/player/app/presentation/components/playback/PlayerSheet.kt
 --- a/app/src/main/java/com/dn0ne/player/app/presentation/components/playback/PlayerSheet.kt
 +++ b/app/src/main/java/com/dn0ne/player/app/presentation/components/playback/PlayerSheet.kt
-@@ -160,7 +160,7 @@
+@@ -160,1 +160,1 @@
 -                ExpandedPlayer(
 +                AppleMusicPlayer(
-@@ -800,7 +800,7 @@
+@@ -800,1 +800,1 @@
 -        WavingSeekBar(
 +        AppleSeekBar(
 
@@ -12,7 +12,7 @@ diff --git a/app/src/main/java/com/dn0ne/player/app/presentation/components/play
 new file mode 100644
 --- /dev/null
 +++ b/app/src/main/java/com/dn0ne/player/app/presentation/components/playback/AppleMusicPlayer.kt
-@@ -0,0 +1,397 @@
+@@ -0,0 +397 @@
 +package com.dn0ne.player.app.presentation.components.playback
 +
 +import android.media.AudioManager
@@ -25,6 +25,7 @@ new file mode 100644
 +import androidx.compose.animation.fadeOut
 +import androidx.compose.animation.slideInVertically
 +import androidx.compose.animation.slideOutVertically
++import androidx.compose.foundation.ExperimentalFoundationApi
 +import androidx.compose.foundation.background
 +import androidx.compose.foundation.basicMarquee
 +import androidx.compose.foundation.Canvas
@@ -33,8 +34,8 @@ new file mode 100644
 +import androidx.compose.foundation.layout.Arrangement
 +import androidx.compose.foundation.layout.Box
 +import androidx.compose.foundation.layout.Column
-+import androidx.compose.foundation.layout.Row
 +import androidx.compose.foundation.layout.Spacer
++import androidx.compose.foundation.layout.Row
 +import androidx.compose.foundation.layout.fillMaxHeight
 +import androidx.compose.foundation.layout.fillMaxSize
 +import androidx.compose.foundation.layout.fillMaxWidth
@@ -51,7 +52,6 @@ new file mode 100644
 +import androidx.compose.material.icons.Icons
 +import androidx.compose.material.icons.automirrored.rounded.QueueMusic
 +import androidx.compose.material.icons.rounded.Lyrics
-+import androidx.compose.material.icons.rounded.MoreVert
 +import androidx.compose.material.icons.rounded.Pause
 +import androidx.compose.material.icons.rounded.PlayArrow
 +import androidx.compose.material.icons.rounded.Repeat
@@ -81,13 +81,10 @@ new file mode 100644
 +import androidx.compose.ui.graphics.Brush
 +import androidx.compose.ui.graphics.Color
 +import androidx.compose.ui.graphics.ImageBitmap
-+import androidx.compose.ui.graphics.graphicsLayer
 +import androidx.compose.ui.input.pointer.pointerInput
 +import androidx.compose.ui.platform.LocalContext
-+import androidx.compose.ui.platform.LocalLayoutDirection
 +import androidx.compose.ui.text.TextStyle
 +import androidx.compose.ui.text.font.FontWeight
-+import androidx.compose.ui.unit.LayoutDirection
 +import androidx.compose.ui.unit.dp
 +import com.dn0ne.player.R
 +import com.dn0ne.player.app.domain.playback.PlaybackMode
@@ -98,6 +95,7 @@ new file mode 100644
 +import com.dn0ne.player.app.presentation.components.isSystemInLandscapeOrientation
 +import kotlinx.coroutines.flow.StateFlow
 +
++@OptIn(ExperimentalFoundationApi::class)
 +@Composable
 +fun AppleMusicPlayer(
 +    playbackStateFlow: StateFlow<PlaybackState>,
@@ -133,7 +131,9 @@ new file mode 100644
 +    var hasCoverArt by remember(currentTrack) { mutableStateOf(false) }
 +    var showQueue by remember { mutableStateOf(false) }
 +    var showSleepTimer by remember { mutableStateOf(false) }
-+    val showLyrics by remember { derivedStateOf { playbackState.isLyricsSheetExpanded } }
++    val showLyrics by remember {
++        derivedStateOf { playbackState.isLyricsSheetExpanded }
++    }
 +
 +    Box(
 +        modifier = modifier
@@ -211,7 +211,9 @@ new file mode 100644
 +                    )
 +
 +                    Spacer(Modifier.height(10.dp))
++
 +                    AppleVolumeSlider()
++
 +                    Spacer(Modifier.weight(1f))
 +
 +                    AppleBottomControls(
@@ -225,7 +227,8 @@ new file mode 100644
 +                                showQueue = true
 +                            }
 +                        },
-+                        queueEnabled = playbackState.playbackMode != PlaybackMode.Shuffle
++                        queueEnabled =
++                            playbackState.playbackMode != PlaybackMode.Shuffle
 +                    )
 +                }
 +            } else {
@@ -268,9 +271,13 @@ new file mode 100644
 +                            onGoToAlbumClick = onGoToAlbumClick,
 +                            onGoToArtistClick = onGoToArtistClick
 +                        )
++
 +                        Spacer(Modifier.weight(1f))
++
 +                        AppleTrackInfo(currentTrack, context)
++
 +                        Spacer(Modifier.height(14.dp))
++
 +                        PlaybackControl(
 +                            playbackStateFlow = playbackStateFlow,
 +                            onPlayClick = onPlayClick,
@@ -282,9 +289,15 @@ new file mode 100644
 +                                .fillMaxWidth()
 +                                .padding(horizontal = 16.dp)
 +                        )
++
 +                        Spacer(Modifier.height(10.dp))
-+                        AppleVolumeSlider(Modifier.padding(horizontal = 16.dp))
++
++                        AppleVolumeSlider(
++                            Modifier.padding(horizontal = 16.dp)
++                        )
++
 +                        Spacer(Modifier.weight(1f))
++
 +                        AppleBottomControls(
 +                            onSleepTimer = { showSleepTimer = true },
 +                            onLyrics = {
@@ -296,7 +309,8 @@ new file mode 100644
 +                                    showQueue = true
 +                                }
 +                            },
-+                            queueEnabled = playbackState.playbackMode != PlaybackMode.Shuffle
++                            queueEnabled =
++                                playbackState.playbackMode != PlaybackMode.Shuffle
 +                        )
 +                    }
 +                }
@@ -305,16 +319,20 @@ new file mode 100644
 +
 +        AnimatedVisibility(
 +            visible = showLyrics,
-+            enter = fadeIn(spring(stiffness = Spring.StiffnessMedium)) +
-+                slideInVertically(initialOffsetY = { it / 10 }),
-+            exit = fadeOut(spring(stiffness = Spring.StiffnessMedium)) +
-+                slideOutVertically(targetOffsetY = { it / 10 }),
++            enter =
++                fadeIn(spring(stiffness = Spring.StiffnessMedium)) +
++                    slideInVertically(initialOffsetY = { it / 10 }),
++            exit =
++                fadeOut(spring(stiffness = Spring.StiffnessMedium)) +
++                    slideOutVertically(targetOffsetY = { it / 10 }),
 +            modifier = Modifier.fillMaxSize()
 +        ) {
 +            LyricsSheet(
 +                playbackStateFlow = playbackStateFlow,
 +                lyricsTextStyle = lyricsTextStyle,
-+                onBackClick = { onLyricsSheetExpandedChange(false) },
++                onBackClick = {
++                    onLyricsSheetExpandedChange(false)
++                },
 +                containerColor = lyricsContainerColor,
 +                contentColor = lyricsContentColor,
 +                onSeekTo = onSeekTo,
@@ -324,10 +342,12 @@ new file mode 100644
 +
 +        AnimatedVisibility(
 +            visible = showQueue,
-+            enter = fadeIn(spring(stiffness = Spring.StiffnessMedium)) +
-+                slideInVertically(initialOffsetY = { it / 10 }),
-+            exit = fadeOut(spring(stiffness = Spring.StiffnessMedium)) +
-+                slideOutVertically(targetOffsetY = { it / 10 }),
++            enter =
++                fadeIn(spring(stiffness = Spring.StiffnessMedium)) +
++                    slideInVertically(initialOffsetY = { it / 10 }),
++            exit =
++                fadeOut(spring(stiffness = Spring.StiffnessMedium)) +
++                    slideOutVertically(targetOffsetY = { it / 10 }),
 +            modifier = Modifier.fillMaxSize()
 +        ) {
 +            Queue(
@@ -337,13 +357,17 @@ new file mode 100644
 +                onRemoveFromQueueClick = onRemoveFromQueueClick,
 +                onReorderingQueue = onReorderingQueue,
 +                onTrackClick = onTrackClick,
-+                onBackClick = { showQueue = false }
++                onBackClick = {
++                    showQueue = false
++                }
 +            )
 +        }
 +
 +        if (showSleepTimer) {
 +            SleepTimerBottomSheet(
-+                onDismissRequest = { showSleepTimer = false }
++                onDismissRequest = {
++                    showSleepTimer = false
++                }
 +            )
 +        }
 +    }
@@ -360,7 +384,11 @@ new file mode 100644
 +    onGoToAlbumClick: () -> Unit,
 +    onGoToArtistClick: () -> Unit
 +) {
-+    Box(Modifier.fillMaxWidth().height(48.dp)) {
++    Box(
++        Modifier
++            .fillMaxWidth()
++            .height(48.dp)
++    ) {
 +        Box(
 +            Modifier
 +                .align(Alignment.Center)
@@ -416,17 +444,25 @@ new file mode 100644
 +}
 +
 +@Composable
-+private fun AppleTrackInfo(track: Track, context: android.content.Context) {
++private fun AppleTrackInfo(
++    track: Track,
++    context: android.content.Context
++) {
 +    Column(Modifier.fillMaxWidth()) {
 +        Text(
-+            text = track.title ?: context.resources.getString(R.string.unknown_title),
++            text =
++                track.title
++                    ?: context.resources.getString(R.string.unknown_title),
 +            style = MaterialTheme.typography.titleLarge,
 +            fontWeight = FontWeight.SemiBold,
 +            color = Color.White.copy(alpha = 0.96f),
 +            modifier = Modifier.basicMarquee()
 +        )
++
 +        Text(
-+            text = track.artist ?: context.resources.getString(R.string.unknown_artist),
++            text =
++                track.artist
++                    ?: context.resources.getString(R.string.unknown_artist),
 +            style = MaterialTheme.typography.titleMedium,
 +            color = Color.White.copy(alpha = 0.62f),
 +            modifier = Modifier.basicMarquee()
@@ -448,7 +484,10 @@ new file mode 100644
 +            .padding(bottom = 4.dp),
 +        verticalAlignment = Alignment.CenterVertically
 +    ) {
-+        Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
++        Box(
++            Modifier.weight(1f),
++            contentAlignment = Alignment.Center
++        ) {
 +            IconButton(onClick = onSleepTimer) {
 +                Icon(
 +                    Icons.Rounded.Timer,
@@ -457,7 +496,11 @@ new file mode 100644
 +                )
 +            }
 +        }
-+        Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
++
++        Box(
++            Modifier.weight(1f),
++            contentAlignment = Alignment.Center
++        ) {
 +            IconButton(onClick = onLyrics) {
 +                Icon(
 +                    Icons.Rounded.Lyrics,
@@ -466,16 +509,24 @@ new file mode 100644
 +                )
 +            }
 +        }
-+        Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
-+            IconButton(onClick = onQueue, enabled = queueEnabled) {
++
++        Box(
++            Modifier.weight(1f),
++            contentAlignment = Alignment.Center
++        ) {
++            IconButton(
++                onClick = onQueue,
++                enabled = queueEnabled
++            ) {
 +                Icon(
 +                    Icons.AutoMirrored.Rounded.QueueMusic,
 +                    null,
-+                    tint = if (queueEnabled) {
-+                        Color.White.copy(alpha = 0.72f)
-+                    } else {
-+                        Color.White.copy(alpha = 0.35f)
-+                    }
++                    tint =
++                        if (queueEnabled) {
++                            Color.White.copy(alpha = 0.72f)
++                        } else {
++                            Color.White.copy(alpha = 0.35f)
++                        }
 +                )
 +            }
 +        }
@@ -483,24 +534,35 @@ new file mode 100644
 +}
 +
 +@Composable
-+private fun AppleVolumeSlider(modifier: Modifier = Modifier) {
++private fun AppleVolumeSlider(
++    modifier: Modifier = Modifier
++) {
 +    val context = LocalContext.current
 +    val audioManager = remember {
 +        context.getSystemService(AudioManager::class.java)
 +    }
++
 +    val maxVolume = remember {
 +        audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
 +    }
++
 +    var volume by remember {
 +        mutableFloatStateOf(
-+            audioManager.getStreamVolume(AudioManager.STREAM_MUSIC).toFloat()
++            audioManager
++                .getStreamVolume(AudioManager.STREAM_MUSIC)
++                .toFloat()
 +        )
 +    }
 +
 +    fun setVolume(fraction: Float) {
-+        val value = (fraction.coerceIn(0f, 1f) * maxVolume).toInt()
++        val value =
++            (fraction.coerceIn(0f, 1f) * maxVolume).toInt()
 +        volume = value.toFloat()
-+        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, value, 0)
++        audioManager.setStreamVolume(
++            AudioManager.STREAM_MUSIC,
++            value,
++            0
++        )
 +    }
 +
 +    Row(
@@ -513,6 +575,7 @@ new file mode 100644
 +            tint = Color.White.copy(alpha = 0.55f),
 +            modifier = Modifier.size(20.dp)
 +        )
++
 +        Box(
 +            Modifier
 +                .weight(1f)
@@ -525,27 +588,56 @@ new file mode 100644
 +                .pointerInput(maxVolume) {
 +                    detectDragGestures { change, _ ->
 +                        change.consume()
-+                        setVolume(change.position.x / size.width)
++                        setVolume(
++                            change.position.x / size.width
++                        )
 +                    }
 +                }
 +        ) {
 +            Canvas(Modifier.fillMaxSize()) {
 +                val y = size.height / 2f
-+                val fraction = if (maxVolume == 0) 0f else volume / maxVolume
++                val fraction =
++                    if (maxVolume == 0) {
++                        0f
++                    } else {
++                        volume / maxVolume
++                    }
++
 +                drawLine(
 +                    color = Color.White.copy(alpha = 0.20f),
-+                    start = androidx.compose.ui.geometry.Offset(0f, y),
-+                    end = androidx.compose.ui.geometry.Offset(size.width, y),
++                    start =
++                        androidx.compose.ui.geometry.Offset(
++                            0f,
++                            y
++                        ),
++                    end =
++                        androidx.compose.ui.geometry.Offset(
++                            size.width,
++                            y
++                        ),
 +                    strokeWidth = 2.dp.toPx()
 +                )
++
 +                drawLine(
-+                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.82f),
-+                    start = androidx.compose.ui.geometry.Offset(0f, y),
-+                    end = androidx.compose.ui.geometry.Offset(size.width * fraction, y),
++                    color =
++                        MaterialTheme.colorScheme.primary.copy(
++                            alpha = 0.82f
++                        ),
++                    start =
++                        androidx.compose.ui.geometry.Offset(
++                            0f,
++                            y
++                        ),
++                    end =
++                        androidx.compose.ui.geometry.Offset(
++                            size.width * fraction,
++                            y
++                        ),
 +                    strokeWidth = 2.dp.toPx()
 +                )
 +            }
 +        }
++
 +        Icon(
 +            Icons.Rounded.VolumeUp,
 +            null,
@@ -555,11 +647,11 @@ new file mode 100644
 +    }
 +}
 +
-+diff --git a/app/src/main/java/com/dn0ne/player/app/presentation/components/playback/AppleSeekBar.kt b/app/src/main/java/com/dn0ne/player/app/presentation/components/playback/AppleSeekBar.kt
-+new file mode 100644
-+--- /dev/null
-++++ b/app/src/main/java/com/dn0ne/player/app/presentation/components/playback/AppleSeekBar.kt
-+@@ -0,0 +1,135 @@
+diff --git a/app/src/main/java/com/dn0ne/player/app/presentation/components/playback/AppleSeekBar.kt b/app/src/main/java/com/dn0ne/player/app/presentation/components/playback/AppleSeekBar.kt
+new file mode 100644
+--- /dev/null
++++ b/app/src/main/java/com/dn0ne/player/app/presentation/components/playback/AppleSeekBar.kt
+@@ -0,0 +1,126 @@
 +package com.dn0ne.player.app.presentation.components.playback
 +
 +import androidx.compose.foundation.Canvas
@@ -596,59 +688,133 @@ new file mode 100644
 +    onPositionChange: (Long) -> Unit,
 +    modifier: Modifier = Modifier
 +) {
-+    var fraction by remember { mutableFloatStateOf(0f) }
-+    var dragging by remember { mutableStateOf(false) }
-+    var width by remember { mutableFloatStateOf(0f) }
-+    val isLtr = LocalLayoutDirection.current == LayoutDirection.Ltr
++    var fraction by remember {
++        mutableFloatStateOf(0f)
++    }
++
++    var dragging by remember {
++        mutableStateOf(false)
++    }
++
++    var width by remember {
++        mutableFloatStateOf(0f)
++    }
++
++    val isLtr =
++        LocalLayoutDirection.current == LayoutDirection.Ltr
 +
 +    LaunchedEffect(position, duration) {
 +        if (!dragging) {
-+            fraction = if (duration <= 0L) 0f
-+            else (position.toFloat() / duration).coerceIn(0f, 1f)
++            fraction =
++                if (duration <= 0L) {
++                    0f
++                } else {
++                    (position.toFloat() / duration)
++                        .coerceIn(0f, 1f)
++                }
 +        }
 +    }
 +
-+    Row(modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
++    Row(
++        modifier = modifier.fillMaxWidth(),
++        horizontalArrangement = Arrangement.Center
++    ) {
 +        Box(
 +            Modifier
 +                .weight(1f)
 +                .height(28.dp)
-+                .onGloballyPositioned { width = it.size.width.toFloat() }
++                .onGloballyPositioned {
++                    width = it.size.width.toFloat()
++                }
 +                .pointerInput(duration, isLtr) {
 +                    detectTapGestures { offset ->
-+                        val x = if (isLtr) offset.x else width - offset.x
-+                        fraction = if (width <= 0f) 0f else (x / width).coerceIn(0f, 1f)
-+                        onPositionChange((fraction * duration).toLong())
++                        val x =
++                            if (isLtr) {
++                                offset.x
++                            } else {
++                                width - offset.x
++                            }
++
++                        fraction =
++                            if (width <= 0f) {
++                                0f
++                            } else {
++                                (x / width)
++                                    .coerceIn(0f, 1f)
++                            }
++
++                        onPositionChange(
++                            (fraction * duration).toLong()
++                        )
 +                    }
 +                }
 +                .pointerInput(duration, isLtr) {
 +                    detectDragGestures(
-+                        onDragStart = { dragging = true },
++                        onDragStart = {
++                            dragging = true
++                        },
 +                        onDragEnd = {
 +                            dragging = false
-+                            onPositionChange((fraction * duration).toLong())
++                            onPositionChange(
++                                (fraction * duration).toLong()
++                            )
 +                        }
 +                    ) { change, dragAmount ->
 +                        change.consume()
-+                        val delta = if (isLtr) dragAmount.x else -dragAmount.x
-+                        fraction = (
-+                            fraction + if (width <= 0f) 0f else delta / width
-+                        ).coerceIn(0f, 1f)
++
++                        val delta =
++                            if (isLtr) {
++                                dragAmount.x
++                            } else {
++                                -dragAmount.x
++                            }
++
++                        fraction =
++                            (
++                                fraction +
++                                    if (width <= 0f) {
++                                        0f
++                                    } else {
++                                        delta / width
++                                    }
++                            ).coerceIn(0f, 1f)
 +                    }
 +                }
 +        ) {
-+            Canvas(Modifier.fillMaxWidth().height(28.dp)) {
++            Canvas(
++                Modifier
++                    .fillMaxWidth()
++                    .height(28.dp)
++            ) {
 +                val y = size.height / 2f
++
 +                drawLine(
 +                    color = Color.White.copy(alpha = 0.22f),
-+                    start = androidx.compose.ui.geometry.Offset(0f, y),
-+                    end = androidx.compose.ui.geometry.Offset(size.width, y),
++                    start =
++                        androidx.compose.ui.geometry.Offset(
++                            0f,
++                            y
++                        ),
++                    end =
++                        androidx.compose.ui.geometry.Offset(
++                            size.width,
++                            y
++                        ),
 +                    strokeWidth = 2.dp.toPx()
 +                )
++
 +                drawLine(
 +                    color = MaterialTheme.colorScheme.primary,
-+                    start = androidx.compose.ui.geometry.Offset(0f, y),
-+                    end = androidx.compose.ui.geometry.Offset(size.width * fraction, y),
++                    start =
++                        androidx.compose.ui.geometry.Offset(
++                            0f,
++                            y
++                        ),
++                    end =
++                        androidx.compose.ui.geometry.Offset(
++                            size.width * fraction,
++                            y
++                        ),
 +                    strokeWidth = 2.dp.toPx()
 +                )
 +            }
@@ -662,10 +828,18 @@ new file mode 100644
 +        horizontalArrangement = Arrangement.SpaceBetween
 +    ) {
 +        Text(
-+            text = formatAppleTime(if (dragging) (fraction * duration).toLong() else position),
++            text =
++                formatAppleTime(
++                    if (dragging) {
++                        (fraction * duration).toLong()
++                    } else {
++                        position
++                    }
++                ),
 +            style = MaterialTheme.typography.bodySmall,
 +            color = Color.White.copy(alpha = 0.58f)
 +        )
++
 +        Text(
 +            text = formatAppleTime(duration),
 +            style = MaterialTheme.typography.bodySmall,
@@ -674,14 +848,26 @@ new file mode 100644
 +    }
 +}
 +
-+private fun formatAppleTime(milliseconds: Long): String {
-+    val seconds = milliseconds.coerceAtLeast(0L) / 1000L
++private fun formatAppleTime(
++    milliseconds: Long
++): String {
++    val seconds =
++        milliseconds.coerceAtLeast(0L) / 1000L
++
 +    val hours = seconds / 3600L
 +    val minutes = (seconds % 3600L) / 60L
 +    val secs = seconds % 60L
++
 +    return if (hours > 0L) {
-+        "%d:%02d:%02d".format(hours, minutes, secs)
++        "%d:%02d:%02d".format(
++            hours,
++            minutes,
++            secs
++        )
 +    } else {
-+        "%d:%02d".format(minutes, secs)
++        "%d:%02d".format(
++            minutes,
++            secs
++        )
 +    }
 +}
