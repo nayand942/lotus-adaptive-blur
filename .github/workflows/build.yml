@@ -28,15 +28,9 @@ jobs:
           sed \
             -e 's#/mnt/data/lotus_orig/lotus-1.2.0/#a/#g' \
             -e 's#/mnt/data/lotus_src/lotus-1.2.0/#b/#g' \
-            player_blur.patch > /tmp/player_blur.patch
-
-          sed \
-            -e 's#/mnt/data/lotus_orig/lotus-1.2.0/#a/#g' \
-            -e 's#/mnt/data/lotus_src/lotus-1.2.0/#b/#g' \
             theme.patch > /tmp/theme.patch
 
           cd lotus
-          git apply /tmp/player_blur.patch
           git apply /tmp/theme.patch
           cd ..
 
