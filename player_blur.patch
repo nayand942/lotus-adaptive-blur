@@ -29,14 +29,12 @@
  import com.dn0ne.player.app.presentation.components.CoverArt
  import com.dn0ne.player.app.presentation.components.TrackMenuButton
  import com.dn0ne.player.app.presentation.components.isSystemInLandscapeOrientation
-@@ -512,11 +521,60 @@
+@@ -512,11 +521,47 @@
          mutableStateOf(false)
      }
  
 -    Box {
 +    Box(modifier = modifier.fillMaxSize()) {
-+        // Full-screen adaptive album-art background. This is deliberately a separate
-+        // layer so the foreground CoverArt below keeps its original size and shape.
 +        playbackState.currentTrack?.let { track ->
 +            AnimatedContent(
 +                targetState = track,
@@ -56,8 +54,6 @@
 +                    modifier = Modifier
 +                        .fillMaxSize()
 +                        .graphicsLayer {
-+                            // Scale slightly past the viewport so blur never exposes
-+                            // hard edges at the screen boundary.
 +                            scaleX = 1.08f
 +                            scaleY = 1.08f
 +                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -72,28 +68,27 @@
 +            }
 +        }
 +
-+        // Dark gradient keeps the existing text/controls readable over bright artwork.
-         Box(
--            modifier = modifier
++        Box(
 +            modifier = Modifier
 +                .fillMaxSize()
 +                .background(
 +                    androidx.compose.ui.graphics.Brush.verticalGradient(
 +                        0f to Color.Black.copy(alpha = 0.48f),
-+                        0.48f to Color.Black.copy(alpha = 0.38f),
++                        0.5f to Color.Black.copy(alpha = 0.38f),
 +                        1f to Color.Black.copy(alpha = 0.68f)
 +                    )
 +                )
 +        )
 +
-+        Box(
+         Box(
+-            modifier = modifier
 +            modifier = Modifier
                  .fillMaxSize()
 -                .background(color = MaterialTheme.colorScheme.surface)
                  .safeDrawingPadding()
                  .padding(horizontal = 28.dp),
              contentAlignment = Alignment.Center
-@@ -990,14 +1048,14 @@
+@@ -990,14 +1035,14 @@
              val isRtl = layoutDirection == LayoutDirection.Rtl
              IconButton(
                  onClick = onSeekToPreviousClick,
@@ -110,7 +105,7 @@
                          .graphicsLayer {
                              if (isRtl) {
                                  rotationY = 180f
-@@ -1009,25 +1067,25 @@
+@@ -1009,25 +1054,25 @@
              if (isPlaying) {
                  IconButton(
                      onClick = onPauseClick,
@@ -140,7 +135,7 @@
  
                      )
                  }
-@@ -1035,14 +1093,14 @@
+@@ -1035,14 +1080,14 @@
  
              IconButton(
                  onClick = onSeekToNextClick,
